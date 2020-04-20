@@ -1,12 +1,14 @@
 extern crate hound;
 use hound::{WavReader, WavSpec, WavIntoSamples, WavSamples};
+use sample::{signal, Signal}
 use std::{
     error::Error,
     fs::{self, File},
     io::BufWriter,
     path::PathBuf,
     string::String,
-    io::Read
+    io::Read,
+    any::type_name
 };
 
 fn main(){
@@ -16,7 +18,7 @@ fn main(){
     let out_path = String::from("../out.avi");
     
     //Open audio
-    let reader = WavReader::open(&audio_path).unwrap();
+    let mut reader = WavReader::open(&audio_path).unwrap();
     let spec = reader.spec();
     
     
@@ -34,19 +36,29 @@ fn main(){
     print!("Samples are:\n");
     print_samples(samples)
     
-    
     //Break sample into frames
+				
+
     //Process audio frames to video frames
     //Put video frames back together
     //Save video
 }
 
-fn print_samples<R,S>(samples: WavSamples<R,S>)
+fn type_of<T>(_: T) -> &'static str {
+    type_name::<T>()
+}
+
+fn samples_to_frames<R>(samples: WavSamples<R, i32>) -> FrameArray
+where
+
+fn print_samples<R>(samples: WavSamples<R,i32>)
 where 
-    S: hound::Sample,
     R: std::io::Read
 {
+    let mut sample_vaule: i32;
     for this_sample in samples{
-          print!("{:?}", this_sample.read(4, 0);
+        //hound::Sample::read(&mut this_sample.unwrap(), sample_value, 8, 0);
+        print!("{}", this_sample.unwrap());
+        //print!("{}", type_of(this_sample));
     }
 }
