@@ -1,16 +1,16 @@
 extern crate hound;
 use hound::{WavReader, Sample};
-//use sample::{signal, Signal};
-use image::{Pixel, ImageBuffer};
+use sample::{signal, Signal, Frame};
+use image::{ImageBuffer, RgbImage};
 use std::{
 //    error::Error,
 //    io::BufWriter,
 		//io::FileWriter,
 //    path::PathBuf,
     string::String,
-    io::{Read,Seek},
     any::type_name,
-		error::Error
+	error::Error,
+	iter::Iterator
 };
 
 //GStreamer for streaming from audio to 'camera'
@@ -33,7 +33,7 @@ fn main() -> Result<(), Box<dyn Error>>{
     print!("Number of samples {}\n", n_samples);
     
 		let samples = reader
-		.into_samples::<i16>()
+		.into_samples::<i32>()
 		.map(|result| result.map(|sample| [sample]))
 		.collect::<Result<Vec<_>, _>>()?;
 
@@ -59,25 +59,22 @@ fn get_nth_frame<S>(samples: &Vec<S>, frame_index :usize, frame_length:usize) ->
 }
 
 
-fn audio_to_video_frame<S,P>(audio_frame: Collection<S>, x_res:u32, y_res:u32) -> ImageBuffer<P,Vec<<P as Pixel>::Subpixel>>
+fn audio_to_video_frame<S>(audio_frame:&[S], x_res:u32, y_res:u32) -> image::RgbImage
 where
-	S: Sample,
-	P: Pixel
+    S: Frame,
 {
 	let mut out_image = ImageBuffer::from_fn(x_res, y_res, |x, y| {
 		if x % 2 == 0 {
-			image::Luma([0u8])
+			image::Rgb([0,0,0])
 		} else {
-			image::Luma([255u8])
+			image::Rgb([255,255,255])
 		}
 	});
 	return out_image
 }
 
 
-fn save_image_as_png<P>(image: ImageBuffer<P, Collection<P>>)
-where
-	P: Pixel
+fn save_image_as_png(image: RgbImage)
 {
 	image.save("test_image.png").unwrap()
 }
