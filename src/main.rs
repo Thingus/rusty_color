@@ -1,16 +1,19 @@
 extern crate hound;
 use hound::{WavReader, Sample};
 //use sample::{signal, Signal};
-//use image::{Pixel, Pixels};
+use image::{Pixel, ImageBuffer};
 use std::{
 //    error::Error,
 //    io::BufWriter,
+		//io::FileWriter,
 //    path::PathBuf,
     string::String,
     io::{Read,Seek},
     any::type_name,
 		error::Error
 };
+
+//GStreamer for streaming from audio to 'camera'
 
 fn main() -> Result<(), Box<dyn Error>>{
     //Ask for path to audio file
@@ -36,8 +39,9 @@ fn main() -> Result<(), Box<dyn Error>>{
 
 		print!("Window 1 is:");
 		let sample_1 = get_nth_frame(&samples, 0, 20);
-    print!("{}", (&sample_1.len()));
-    //Break sample into frames
+		let frame_1 = audio_to_video_frame(sample_1, 512, 512);
+		save_image_as_png(frame_1);
+//Break sample into frames
 				
     //Process audio frames to video frames
     
@@ -51,8 +55,31 @@ fn get_nth_frame<S>(samples: &Vec<S>, frame_index :usize, frame_length:usize) ->
 {
 		let frame_start = frame_index * frame_length;
 		let frame_end = frame_start + frame_length;   // Add range check here
-		let mut frame: Vec<S> = Vec::new();
 		&samples[frame_start..frame_end]
+}
+
+
+fn audio_to_video_frame<S,P>(audio_frame: Collection<S>, x_res:u32, y_res:u32) -> ImageBuffer<P,Vec<<P as Pixel>::Subpixel>>
+where
+	S: Sample,
+	P: Pixel
+{
+	let mut out_image = ImageBuffer::from_fn(x_res, y_res, |x, y| {
+		if x % 2 == 0 {
+			image::Luma([0u8])
+		} else {
+			image::Luma([255u8])
+		}
+	});
+	return out_image
+}
+
+
+fn save_image_as_png<P>(image: ImageBuffer<P, Collection<P>>)
+where
+	P: Pixel
+{
+	image.save("test_image.png").unwrap()
 }
 
 
