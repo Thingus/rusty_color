@@ -9,3 +9,5 @@ edition = "2018"
 [dependencies]
 sample = "0.10.0"
 hound = "3.4.0"
+image = "0.23.4"
+sliding_windows = "3.0"
